@@ -5,9 +5,21 @@ import os
 import joblib
 import time
 from openai import OpenAI
+from dotenv import load_dotenv
 
-client = OpenAI()
+# ==============================
+# CARGA DEL .ENV Y API KEY
+# ==============================
+load_dotenv()  # carga el .env desde la carpeta del proyecto
 
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+if os.getenv("OPENAI_API_KEY") is None:
+    raise ValueError("ERROR: OPENAI_API_KEY no está cargada. Verifica tu archivo .env")
+
+# ==============================
+# MODELOS LOCALES
+# ==============================
 mp_pose = mp.solutions.pose
 drawer = mp.solutions.drawing_utils
 
@@ -26,6 +38,9 @@ scaler = joblib.load(os.path.join(models_base, "scaler.pkl"))
 encoder = joblib.load(os.path.join(models_base, "label_encoder.pkl"))
 numeric_cols = joblib.load(os.path.join(models_base, "feature_cols.pkl"))
 
+# ==============================
+# FEATURE EXTRACTION
+# ==============================
 def extract_live_features(landmarks):
     xs = np.array([lm.x for lm in landmarks])
     ys = np.array([lm.y for lm in landmarks])
@@ -45,11 +60,17 @@ def extract_live_features(landmarks):
 
     return np.array([vel, exp_val, stab])
 
+# ==============================
+# PREDICCIÓN ML
+# ==============================
 def predict_emotion(features):
     X = scaler.transform([features])
     y = model.predict(X)
     return encoder.inverse_transform(y)[0]
 
+# ==============================
+# LLM SUGGESTION
+# ==============================
 def get_suggestion(emotion):
     r = client.chat.completions.create(
         model="gpt-4o-mini",
@@ -60,6 +81,9 @@ def get_suggestion(emotion):
     )
     return r.choices[0].message.content.strip()
 
+# ==============================
+# REALTIME LOOP
+# ==============================
 def run_inference():
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():

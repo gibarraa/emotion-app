@@ -1,45 +1,44 @@
-clip_id,emotion,mean_velocity,expansion,stability,summary
-alegria_20251114_172823,alegria,0.013869557259559148,1.0280668161078979,0.008018931145042886,"La trayectoria del movimiento humano en el clip presenta características interesantes:
-
-**Ritmo:** El movimiento tiene un ritmo constante, con cambios suaves en las posiciones sin grandes variaciones abruptas. Esto sugiere una cadencia predecible en la actividad.
-
-**Estabilidad:** La estabilidad es notable. Las posiciones en los ejes (x, y, z) se mantienen dentro de un rango estrecho lo que indica que los movimientos son controlados y no tienden a fluctuar de manera significativa fuera de un rango establecido.
-
-**Amplitud:** La amplitud del movimiento es moderada. Los cambios en las coordenadas sugieren que el individuo se mueve en un espacio reducido, sin grandes expansiones que podrían indicar saltos o movimientos extremos.
-
-**Energía:** La energía del movimiento parece ser relativamente baja, con velocidades que se mantienen cercanas a su valor máximo, pero con poca variación. Esto implica un esfuerzo moderado en la actividad, evitando movimientos excesivamente intensos o explosivos.
-
-En resumen, el movimiento es fluido y controlado, caracterizado por un ritmo regular, una estabilidad sólida, una amplitud moderada y un nivel de energía contenido."
-ansiedad_20251114_173031,ansiedad,0.03147776108487514,0.6370643041981043,0.017742565916243083,"En este clip, el movimiento humano mostrado se presenta con las siguientes características:
-
-**Ritmo**: El movimiento tiene un ritmo bastante constante, lo que sugiere una cadencia regular en la acción. Aunque hay momentos de ligera variación, en general, la periodicidad es un rasgo destacado.
-
-**Estabilidad**: La estabilidad es notable, ya que los movimientos tienden a ser predecibles y controlados, manteniendo una trayectoria define a lo largo del clip. Las fluctuaciones son mínimas, lo que indica un buen equilibrio y control corporal.
-
-**Amplitud**: La amplitud del movimiento es moderada, con movimientos que no parecen forzados ni exagerados. Se puede observar una variación en la posición en el espacio, particularmente en el eje vertical (z), sin cambios drásticos, lo que contribuye a la sensación de fluidez en la acción.
-
-**Energía**: La energía del movimiento es relativamente alta al principio, con una disminución gradual hacia el final del clip. Se inicia con una dinámica que sugiere intensidad y compromiso, pero a medida que avanza, hay una transición hacia una energía más suave y controlada.
-
-En resumen, el movimiento en el clip presenta un ritmo constante, muy estable, con una amplitud moderada y una energía que comienza intensa, pero se apacigua progresivamente."
-tristeza_20251114_172921,tristeza,0.014805660919962018,0.7226324483675265,0.008625404573726132,"El análisis del movimiento humano en este clip revela varios aspectos clave:
-
-1. **Ritmo**: El movimiento parece tener un ritmo bastante regular y constante, evidenciado por la cercanía de las posiciones y velocidades de los diferentes puntos a lo largo del clip. Esto sugiere que las acciones realizadas son fluidas y continuas.
-
-2. **Estabilidad**: La estabilidad se percibe mayormente, ya que las variaciones en las posiciones medias, especialmente en los ejes X, Y y Z, son relativamente pequeñas. Aunque hay alguna fluctuación, las magnitudes están controladas, lo que indica que el sujeto se mantiene equilibrado en su movimiento.
-
-3. **Amplitud**: La amplitud del movimiento muestra un rango de desplazamiento notable, especialmente en el eje vertical (Z), donde se observan valores mínimos y máximos variados. Esto sugiere que la actividad realizada incluye movimientos que requieren de un rango amplio, probablemente en un contexto dinámico y activo.
-
-4. **Energía**: La energía inherente al movimiento parece ser baja, ya que las velocidades en general se mantienen cerca de 1, lo que refleja que no hay cambios bruscos o explosivos en la actividad. Esto indica que, aunque el movimiento es constante, no involucra grandes explosiones de energía, sino más bien un despliegue controlado y sostenido de esfuerzo.
-
-En resumen, el movimiento registrado en este clip es regular y estable, con una amplitud que sugiere una variedad de acciones, todo ello con un gasto energético moderado."
-neutral_20251114_173102,neutral,0.0027432407691103024,1.1581174093411,0.001649838410624307,"En el clip analizado, el movimiento humano presenta características distintivas en términos de ritmo, estabilidad, amplitud y energía:
-
-1. **Ritmo**: El movimiento está marcado por una cadencia constante y fluida. La frecuencia de los cambios es estable, lo que sugiere que el sujeto se mueve de manera regular y deliberada.
-
-2. **Estabilidad**: La estabilidad es notable, con poca variabilidad en las posiciones y velocidades a lo largo de los marcos analizados. Esto implica que el sujeto mantiene un control firme sobre su movimiento, evitando oscilaciones o tropiezos significativos.
-
-3. **Amplitud**: La amplitud de movimiento varía a lo largo del clip, pero en general, se observan desplazamientos moderados en las direcciones x, y y z. No se evidencian movimientos extremos, lo que indica que el sujeto opera dentro de un rango relativamente controlado y seguro.
-
-4. **Energía**: La energía exhibida es moderada, con un esfuerzo constante que se refleja en las velocidades que se mantienen cercanas a uno, lo que sugiere un movimiento eficiente. Aunque hay momentos con realmente baja velocidad, la gran mayoría de las observaciones muestra una energía estable y enérgica.
-
-En resumen, el movimiento humano en el clip es fluido, estable y controlado, con variaciones en la amplitud que no comprometen la eficiencia y la energía general del desplazamiento."
+clip_id,emotion,mean_velocity,expansion,stability
+alegria_20251114_172823,alegria,1.1103068783495875,52.205447752662415,0.9006510892154036
+alegria_20251208_155757,alegria,1.3393552305092722,0.2539650983001332,0.7466273551583535
+alegria_20251208_160036,alegria,0.9145668814761202,0.0752686696680288,1.0934125506200716
+alegria_20251208_160232,alegria,0.5144291187549926,0.0489883364955456,1.943898624015577
+alegria_20251208_161035,alegria,0.2897152683493491,0.0182688142859304,3.451652907506624
+alegria_20251208_161108,alegria,0.4049775105158791,0.0535544050418097,2.4692668228893355
+alegria_20251208_161122,alegria,0.3562887875978895,0.0460635922924513,2.8067040785592345
+alegria_20251208_161137,alegria,0.3988631019877498,0.0360964392323918,2.507119580369538
+alegria_20251208_161154,alegria,0.4426924228603349,0.0280642707124064,2.258899609438041
+alegrua_20251208_161049,alegria,0.3556329444379585,0.0140138180453912,2.8118800683674707
+ansiedad_20251114_173031,ansiedad,1.355491531299062,53.37216462837163,0.7377392179664989
+ansiedad_20251208_155920,ansiedad,1.1267826973985575,0.1452765054095185,0.8874817787200264
+ansiedad_20251208_160111,ansiedad,0.5609477494883223,0.0378711739290469,1.78269405344457
+ansiedad_20251208_160346,ansiedad,0.3744628111482044,0.0300303095131949,2.670485024797824
+ansiedad_20251208_161210,ansiedad,0.533018350836701,0.0412466587485651,1.8761044949498764
+ansiedad_20251208_161228,ansiedad,0.3738855190157442,0.0546802951345491,2.6746083347227896
+ansiedad_20251208_161427,ansiedad,0.4476666097414453,0.0484151218782473,2.2338002085466035
+ansiedad_20251208_161440,ansiedad,0.4055784125337222,0.0520542304522954,2.465608384194931
+ansiedad_20251208_161452,ansiedad,0.4374291117142649,0.0518020558382735,2.2860794746869484
+ansiedad_20251208_161504,ansiedad,0.4564414327242417,0.0397561461293715,2.190856783475578
+ansiedad_20251208_161523,ansiedad,0.2868745047554716,0.0256112122687244,3.485832646647141
+ansiedad_20251208_161545,ansiedad,0.2697316562414754,0.025190820379787,3.70737460541211
+ansiedad_20251208_161607,ansiedad,0.3158661964617092,0.0152363370936665,3.165887471702761
+ansiedad_20251208_161639,ansiedad,0.3659449553796246,0.0355756358986132,2.732643947280743
+neutral_20251114_173102,neutral,1.0139348559114911,54.36467367893854,0.9862556829110622
+neutral_20251208_160011,neutral,0.4725889531709857,0.0520581980396498,2.115999278635097
+neutral_20251208_160131,neutral,0.263242142248179,0.0195031619754147,3.798769424569569
+neutral_20251208_160410,neutral,0.2301176016713889,0.0073634048379253,4.345585244899096
+neutral_20251208_161828,neutral,0.1841093829959479,0.0062560833397462,5.431524196123197
+neutral_20251208_161843,neutral,0.1724088654527976,0.0055864192382718,5.8001321291778405
+neutral_20251208_161902,neutral,0.1623262387879912,0.0063659674716001,6.160395553244504
+neutral_20251208_161916,neutral,0.1782257091869379,0.0055976176622325,5.610831308965722
+tristeza_20251114_172921,tristeza,1.128184508015483,52.21776341920336,0.8863790510472291
+tristeza_20251208_155943,tristeza,0.6516722131158156,0.0820075387348196,1.5345114389752883
+tristeza_20251208_160055,tristeza,0.327830473565043,0.0319234181896215,3.05034775680742
+tristeza_20251208_160308,tristeza,0.1794693012908921,0.0020012086372028,5.57195253369059
+tristeza_20251208_161624,tristeza,0.2570017845752778,0.0227572803205197,3.8910084248799
+tristeza_20251208_161654,tristeza,0.2271101649682054,0.0111426727602957,4.403130071302288
+tristeza_20251208_161709,tristeza,0.2313301142753451,0.0189326033862474,4.322808037010256
+tristeza_20251208_161724,tristeza,0.2377326012540461,0.0155006128098809,4.206388977935783
+tristeza_20251208_161739,tristeza,0.2141990591375509,0.0089900553857964,4.6685327913837735
+tristeza_20251208_161754,tristeza,0.1762517920321728,0.0139614784126432,5.673668986857591
+tristeza_20251208_161808,tristeza,0.1998678397591355,0.0127051495118558,5.003281157808855

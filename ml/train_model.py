@@ -1,65 +1,37 @@
 import pandas as pd
 import numpy as np
-import os
 import joblib
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import LabelEncoder
+import os
 
-# Ruta del dataset
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_PATH = os.path.join(BASE_DIR, "data/features/dataset_features.csv")
+df = pd.read_csv("data/features/dataset_features.csv")
 
-df = pd.read_csv(DATA_PATH)
-
-print("Columnas encontradas:", df.columns.tolist())
-
-# ==========================
-#   DEFINIR FEATURES
-# ==========================
-FEATURE_COLS = ["mean_velocity", "expansion", "stability"]
-TARGET_COL = "emotion"
-
-X = df[FEATURE_COLS]
-y = df[TARGET_COL]
-
-# ==========================
-#   ENCODING Y ESCALADO
-# ==========================
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
+X = df[["mean_velocity", "expansion", "stability"]].values
+y = df["emotion"].values
 
 encoder = LabelEncoder()
-y_encoded = encoder.fit_transform(y)
+y_enc = encoder.fit_transform(y)
 
-# ==========================
-#   ENTRENAMIENTO
-# ==========================
 X_train, X_test, y_train, y_test = train_test_split(
-    X_scaled, y_encoded, test_size=0.3, random_state=42
+    X, y_enc, test_size=0.2, stratify=y_enc
 )
 
-clf = RandomForestClassifier(n_estimators=200, random_state=42)
-clf.fit(X_train, y_train)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
 
-# ==========================
-#   EVALUACIÓN
-# ==========================
-preds = clf.predict(X_test)
-print("\n==== REPORT ====\n")
-print(classification_report(y_test, preds, target_names=encoder.classes_))
+model = RandomForestClassifier(n_estimators=200)
+model.fit(X_train_scaled, y_train)
 
-# ==========================
-#   GUARDAR MODELOS
-# ==========================
-MODELS_DIR = os.path.join(BASE_DIR, "ml/models")
+models_dir = "ml/models"
+os.makedirs(models_dir, exist_ok=True)
 
-joblib.dump(clf, os.path.join(MODELS_DIR, "emotion_model.pkl"))
-joblib.dump(scaler, os.path.join(MODELS_DIR, "scaler.pkl"))
-joblib.dump(encoder, os.path.join(MODELS_DIR, "label_encoder.pkl"))
+joblib.dump(model, os.path.join(models_dir, "emotion_model.pkl"))
+joblib.dump(scaler, os.path.join(models_dir, "scaler.pkl"))
+joblib.dump(encoder, os.path.join(models_dir, "label_encoder.pkl"))
+joblib.dump(["mean_velocity", "expansion", "stability"], os.path.join(models_dir, "feature_cols.pkl"))
 
-# También guardamos la lista de columnas
-joblib.dump(FEATURE_COLS, os.path.join(MODELS_DIR, "feature_cols.pkl"))
-
-print("\nModelos guardados en:", MODELS_DIR)
+print("Modelo entrenado y guardado correctamente.")

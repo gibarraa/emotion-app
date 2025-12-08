@@ -4,9 +4,7 @@ __pycache__/
 *.pyc
 *.pkl
 
-data/raw_sessions/
-data/features/
-data/reports/
+
 
 .DS_Store
-.env
+
