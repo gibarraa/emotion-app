@@ -1,0 +1,45 @@
+clip_id,emotion,mean_velocity,expansion,stability,summary
+alegria_20251114_172823,alegria,0.013869557259559148,1.0280668161078979,0.008018931145042886,"La trayectoria del movimiento humano en el clip presenta características interesantes:
+
+**Ritmo:** El movimiento tiene un ritmo constante, con cambios suaves en las posiciones sin grandes variaciones abruptas. Esto sugiere una cadencia predecible en la actividad.
+
+**Estabilidad:** La estabilidad es notable. Las posiciones en los ejes (x, y, z) se mantienen dentro de un rango estrecho lo que indica que los movimientos son controlados y no tienden a fluctuar de manera significativa fuera de un rango establecido.
+
+**Amplitud:** La amplitud del movimiento es moderada. Los cambios en las coordenadas sugieren que el individuo se mueve en un espacio reducido, sin grandes expansiones que podrían indicar saltos o movimientos extremos.
+
+**Energía:** La energía del movimiento parece ser relativamente baja, con velocidades que se mantienen cercanas a su valor máximo, pero con poca variación. Esto implica un esfuerzo moderado en la actividad, evitando movimientos excesivamente intensos o explosivos.
+
+En resumen, el movimiento es fluido y controlado, caracterizado por un ritmo regular, una estabilidad sólida, una amplitud moderada y un nivel de energía contenido."
+ansiedad_20251114_173031,ansiedad,0.03147776108487514,0.6370643041981043,0.017742565916243083,"En este clip, el movimiento humano mostrado se presenta con las siguientes características:
+
+**Ritmo**: El movimiento tiene un ritmo bastante constante, lo que sugiere una cadencia regular en la acción. Aunque hay momentos de ligera variación, en general, la periodicidad es un rasgo destacado.
+
+**Estabilidad**: La estabilidad es notable, ya que los movimientos tienden a ser predecibles y controlados, manteniendo una trayectoria define a lo largo del clip. Las fluctuaciones son mínimas, lo que indica un buen equilibrio y control corporal.
+
+**Amplitud**: La amplitud del movimiento es moderada, con movimientos que no parecen forzados ni exagerados. Se puede observar una variación en la posición en el espacio, particularmente en el eje vertical (z), sin cambios drásticos, lo que contribuye a la sensación de fluidez en la acción.
+
+**Energía**: La energía del movimiento es relativamente alta al principio, con una disminución gradual hacia el final del clip. Se inicia con una dinámica que sugiere intensidad y compromiso, pero a medida que avanza, hay una transición hacia una energía más suave y controlada.
+
+En resumen, el movimiento en el clip presenta un ritmo constante, muy estable, con una amplitud moderada y una energía que comienza intensa, pero se apacigua progresivamente."
+tristeza_20251114_172921,tristeza,0.014805660919962018,0.7226324483675265,0.008625404573726132,"El análisis del movimiento humano en este clip revela varios aspectos clave:
+
+1. **Ritmo**: El movimiento parece tener un ritmo bastante regular y constante, evidenciado por la cercanía de las posiciones y velocidades de los diferentes puntos a lo largo del clip. Esto sugiere que las acciones realizadas son fluidas y continuas.
+
+2. **Estabilidad**: La estabilidad se percibe mayormente, ya que las variaciones en las posiciones medias, especialmente en los ejes X, Y y Z, son relativamente pequeñas. Aunque hay alguna fluctuación, las magnitudes están controladas, lo que indica que el sujeto se mantiene equilibrado en su movimiento.
+
+3. **Amplitud**: La amplitud del movimiento muestra un rango de desplazamiento notable, especialmente en el eje vertical (Z), donde se observan valores mínimos y máximos variados. Esto sugiere que la actividad realizada incluye movimientos que requieren de un rango amplio, probablemente en un contexto dinámico y activo.
+
+4. **Energía**: La energía inherente al movimiento parece ser baja, ya que las velocidades en general se mantienen cerca de 1, lo que refleja que no hay cambios bruscos o explosivos en la actividad. Esto indica que, aunque el movimiento es constante, no involucra grandes explosiones de energía, sino más bien un despliegue controlado y sostenido de esfuerzo.
+
+En resumen, el movimiento registrado en este clip es regular y estable, con una amplitud que sugiere una variedad de acciones, todo ello con un gasto energético moderado."
+neutral_20251114_173102,neutral,0.0027432407691103024,1.1581174093411,0.001649838410624307,"En el clip analizado, el movimiento humano presenta características distintivas en términos de ritmo, estabilidad, amplitud y energía:
+
+1. **Ritmo**: El movimiento está marcado por una cadencia constante y fluida. La frecuencia de los cambios es estable, lo que sugiere que el sujeto se mueve de manera regular y deliberada.
+
+2. **Estabilidad**: La estabilidad es notable, con poca variabilidad en las posiciones y velocidades a lo largo de los marcos analizados. Esto implica que el sujeto mantiene un control firme sobre su movimiento, evitando oscilaciones o tropiezos significativos.
+
+3. **Amplitud**: La amplitud de movimiento varía a lo largo del clip, pero en general, se observan desplazamientos moderados en las direcciones x, y y z. No se evidencian movimientos extremos, lo que indica que el sujeto opera dentro de un rango relativamente controlado y seguro.
+
+4. **Energía**: La energía exhibida es moderada, con un esfuerzo constante que se refleja en las velocidades que se mantienen cercanas a uno, lo que sugiere un movimiento eficiente. Aunque hay momentos con realmente baja velocidad, la gran mayoría de las observaciones muestra una energía estable y enérgica.
+
+En resumen, el movimiento humano en el clip es fluido, estable y controlado, con variaciones en la amplitud que no comprometen la eficiencia y la energía general del desplazamiento."
