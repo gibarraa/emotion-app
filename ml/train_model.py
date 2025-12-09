@@ -1,37 +1,63 @@
-import pandas as pd
+import os
 import numpy as np
+import pandas as pd
 import joblib
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import LabelEncoder
-import os
 
-df = pd.read_csv("data/features/dataset_features.csv")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_PATH = os.path.join(BASE_DIR, "data", "raw_sessions")
+MODEL_DIR = os.path.join(BASE_DIR, "ml", "models")
 
-X = df[["mean_velocity", "expansion", "stability"]].values
-y = df["emotion"].values
+print("== ENTRENANDO MODELO CON 99 FEATURES ==")
 
+files = [f for f in os.listdir(DATA_PATH) if f.endswith(".csv")]
+
+X = []
+y = []
+
+for filename in files:
+    emotion = filename.split("_")[0]  # alegria_xxx.csv -> alegria
+    path = os.path.join(DATA_PATH, filename)
+
+    # Cargar CSV como DataFrame (soporta encabezados)
+    df = pd.read_csv(path)
+
+    # Detectar si sobran columnas no numéricas
+    df = df.select_dtypes(include=[float, int])
+
+    if df.shape[1] != 99:
+        print("❌ Archivo ignorado (columnas inválidas):", filename)
+        print("   Columnas encontradas:", df.shape[1])
+        continue
+
+    # Vector promedio para esta muestra
+    features = df.mean(axis=0).values
+    X.append(features)
+    y.append(emotion)
+
+print("Muestras válidas:", len(X))
+
+X = np.array(X)
+y = np.array(y)
+
+# Codificar etiquetas
 encoder = LabelEncoder()
-y_enc = encoder.fit_transform(y)
+y_encoded = encoder.fit_transform(y)
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y_enc, test_size=0.2, stratify=y_enc
-)
-
+# Escalar
 scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
+X_scaled = scaler.fit_transform(X)
 
+# Entrenar modelo
 model = RandomForestClassifier(n_estimators=200)
-model.fit(X_train_scaled, y_train)
+model.fit(X_scaled, y_encoded)
 
-models_dir = "ml/models"
-os.makedirs(models_dir, exist_ok=True)
+os.makedirs(MODEL_DIR, exist_ok=True)
 
-joblib.dump(model, os.path.join(models_dir, "emotion_model.pkl"))
-joblib.dump(scaler, os.path.join(models_dir, "scaler.pkl"))
-joblib.dump(encoder, os.path.join(models_dir, "label_encoder.pkl"))
-joblib.dump(["mean_velocity", "expansion", "stability"], os.path.join(models_dir, "feature_cols.pkl"))
+joblib.dump(model, os.path.join(MODEL_DIR, "emotion_model.pkl"))
+joblib.dump(scaler, os.path.join(MODEL_DIR, "scaler.pkl"))
+joblib.dump(encoder, os.path.join(MODEL_DIR, "label_encoder.pkl"))
 
-print("Modelo entrenado y guardado correctamente.")
+print("== MODELO ENTRENADO Y GUARDADO ==")

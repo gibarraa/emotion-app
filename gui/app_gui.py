@@ -5,376 +5,349 @@ import mediapipe as mp
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from openai import OpenAI
 import joblib
 import os
 from dotenv import load_dotenv
+from collections import deque
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
 
 # ===========================
-#         CONFIG
+# LOAD ENV + MODELS
 # ===========================
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
+model = joblib.load(os.path.join(BASE_DIR, "ml/models/emotion_model.pkl"))
+scaler = joblib.load(os.path.join(BASE_DIR, "ml/models/scaler.pkl"))
+encoder = joblib.load(os.path.join(BASE_DIR, "ml/models/label_encoder.pkl"))
+
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# Colors por emoción
-EMO_COLORS = {
-    "alegria": (0, 255, 255),
-    "tristeza": (255, 0, 0),
-    "ansiedad": (0, 140, 255),
-    "neutral": (200, 200, 200)
-}
-
-EMOJI = {
-    "alegria": "😊",
-    "tristeza": "😢",
-    "ansiedad": "😰",
-    "neutral": "😐"
-}
-
-# Mediapipe
 mp_pose = mp.solutions.pose
+pose = mp_pose.Pose()
 drawer = mp.solutions.drawing_utils
 
 
 # ===========================
-#   CARGA MODELOS
+# EMOJIS
 # ===========================
 
-model_path = os.path.join(BASE_DIR, "ml/models/emotion_model.pkl")
-scaler_path = os.path.join(BASE_DIR, "ml/models/scaler.pkl")
-encoder_path = os.path.join(BASE_DIR, "ml/models/label_encoder.pkl")
-
-model = joblib.load(model_path)
-scaler = joblib.load(scaler_path)
-encoder = joblib.load(encoder_path)
+EMOJI = {
+    "alegria": "😄",
+    "tristeza": "😢",
+    "ansiedad": "😰",
+    "neutral": "😐",
+}
 
 
 # ===========================
-#   FEATURE EXTRACTION
+# GENERAL COLORS – DARK MODE
 # ===========================
 
-def extract_features(landmarks):
-    xs = np.array([lm.x for lm in landmarks])
-    ys = np.array([lm.y for lm in landmarks])
-    dx = np.diff(xs)
-    dy = np.diff(ys)
-    vel = float(np.sqrt(dx**2 + dy**2).mean())
-    stab = float(np.abs(dx).mean() + np.abs(dy).mean())
+COLORS = {
+    "bg": "#0E0E0F",        # fondo principal
+    "panel": "#151515",     # panel derecho
+    "text": "#FFFFFF",
+    "accent": "#5AC8FA",
+}
 
-    idx = [11, 12, 23, 24]
-    width = float(xs[idx].max() - xs[idx].min())
-    height = float(ys[idx].max() - ys[idx].min())
-    exp_val = width * height
-    return np.array([vel, exp_val, stab])
 
+# ===========================
+# SUGGESTER
+# ===========================
 
 def get_suggestion(emotion):
     try:
         r = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "Eres empático, motivador y muy breve."},
-                {"role": "user", "content": f"La emoción detectada es {emotion}. Dame un consejo corto."}
+                {"role": "system", "content": "Responde cálido y breve."},
+                {"role": "user", "content": f"Recomienda algo breve para la emoción '{emotion}'."}
             ]
         )
         return r.choices[0].message.content.strip()
     except:
-        return "(No disponible)"
+        return "…"
 
 
 # ===========================
-#            GUI
+# MAIN CLASS
 # ===========================
 
 class EmotionGUI:
     def __init__(self):
         self.root = tk.Tk()
-        self.root.title("Emotion AI Suite (v2.0)")
-        self.root.configure(bg="#1e1e1e")
-        self.root.geometry("1600x900")
+        self.root.title("Emotion AI – Dark UI")
+        self.root.geometry("1280x720")
+        self.root.configure(bg=COLORS["bg"])
 
-        self.mode = "infer"
-
-        # cámara
+        # Capture
         self.cap = cv2.VideoCapture(0)
 
-        # mediapipe
-        self.pose = mp_pose.Pose(
-            static_image_mode=False,
-            smooth_landmarks=True,
-            min_detection_confidence=0.5
-        )
+        # State
+        self.mode = "dashboard"
+        self.emotion_history = deque(maxlen=50)
 
-        # historial sesión
-        self.history = []
+        # Layout containers
+        self.build_layout()
 
-        # entrenamiento
-        self.is_recording = False
-        self.record_data = []
-        self.record_start_time = 0
-        self.countdown = 3
-
-        self.build_ui()
+        # First frame update
         self.update_frame()
 
-    # ===========================
-    #       CONSTRUCCIÓN UI
-    # ===========================
 
-    def build_ui(self):
-        # Panel principal
-        self.left_frame = tk.Frame(self.root, bg="#1e1e1e")
-        self.left_frame.pack(side="left", fill="both", expand=True)
+    # ======================
+    # LAYOUT: CAMERA + PANEL
+    # ======================
 
-        self.right_frame = tk.Frame(self.root, width=450, bg="#1e1e1e")
-        self.right_frame.pack(side="right", fill="y")
+    def build_layout(self):
+        for w in self.root.winfo_children():
+            w.destroy()
 
-        # ------- Video ------
-        self.label_video = tk.Label(self.left_frame, bg="#1e1e1e")
-        self.label_video.pack(expand=True)
+        # LEFT SIDE → CAMERA
+        self.camera_frame = tk.Frame(self.root, bg="black")
+        self.camera_frame.pack(side="left", fill="both", expand=True)
 
-        # ------- Panel derecho ------
-        title = tk.Label(self.right_frame, text="EMOTION AI SUITE", font=("Arial", 22, "bold"),
-                         fg="white", bg="#1e1e1e")
-        title.pack(pady=10)
+        self.video_label = tk.Label(self.camera_frame, bg="black")
+        self.video_label.pack(fill="both", expand=True)
 
-        self.label_emoji = tk.Label(self.right_frame, text="😐", font=("Arial", 60),
-                                    fg="white", bg="#1e1e1e")
-        self.label_emoji.pack()
+        # RIGHT SIDE → PANEL
+        self.ui_panel = tk.Frame(self.root, bg=COLORS["panel"], width=380)
+        self.ui_panel.pack(side="right", fill="y")
+        self.ui_panel.pack_propagate(False)
 
-        self.label_emotion = tk.Label(self.right_frame, text="Emoción: ---", font=("Arial", 16),
-                                      fg="white", bg="#1e1e1e")
-        self.label_emotion.pack(pady=5)
+        self.build_dashboard_panel()
 
-        self.label_suggestion = tk.Label(self.right_frame, text="---", wraplength=350,
-                                         justify="center", font=("Arial", 12), fg="#cccccc", bg="#1e1e1e")
-        self.label_suggestion.pack(pady=5)
 
-        # Botón pantalla completa
-        tk.Button(self.right_frame, text="Pantalla completa (F11)",
-                  command=self.toggle_fullscreen, bg="#444", fg="white").pack(pady=5)
+    # ======================
+    # DASHBOARD PANEL UI
+    # ======================
 
-        # ----- gráfica -----
-        fig = plt.Figure(figsize=(4, 2.5), facecolor="#1e1e1e")
+    def build_dashboard_panel(self):
+
+        # EMOJI
+        self.emoji_label = tk.Label(
+            self.ui_panel, text="😐",
+            font=("SF Pro Display", 70),
+            bg=COLORS["panel"], fg="white"
+        )
+        self.emoji_label.pack(pady=10)
+
+        # Emotion text
+        self.emotion_label = tk.Label(
+            self.ui_panel, text="Emoción: ---",
+            font=("SF Pro Display", 24, "bold"),
+            bg=COLORS["panel"], fg="white"
+        )
+        self.emotion_label.pack(pady=5)
+
+        # Suggestion
+        self.suggestion_label = tk.Label(
+            self.ui_panel,
+            text="Sugerencia: ---",
+            wraplength=300,
+            justify="center",
+            font=("SF Pro Display", 14),
+            bg=COLORS["panel"], fg="#CCCCCC"
+        )
+        self.suggestion_label.pack(pady=10)
+
+        # TRAINING MODE BUTTON
+        train_btn = tk.Button(
+            self.ui_panel,
+            text="Modo Entrenamiento",
+            command=self.switch_training,
+            bg="#222222", fg="white",
+            relief="flat", padx=15, pady=10
+        )
+        train_btn.pack(pady=10)
+
+        # ======== HISTORICAL GRAPH ========
+        fig = plt.Figure(figsize=(3.5, 2.2), dpi=80)
+        fig.patch.set_facecolor(COLORS["panel"])
         self.ax = fig.add_subplot(111)
-        self.ax.set_facecolor("#1e1e1e")
+        self.ax.set_facecolor(COLORS["panel"])
         self.ax.tick_params(colors="white")
-        self.ax.spines["bottom"].set_color("white")
-        self.ax.spines["left"].set_color("white")
+        self.ax.title.set_color("white")
+        self.ax.set_title("Historial de emociones")
 
-        self.canvas = FigureCanvasTkAgg(fig, master=self.right_frame)
-        self.canvas.get_tk_widget().pack()
-
-        # ----- historial -----
-        tk.Label(self.right_frame, text="Historial de Sesión", font=("Arial", 14, "bold"),
-                 fg="white", bg="#1e1e1e").pack(pady=5)
-
-        self.tree = ttk.Treeview(self.right_frame, columns=("time", "emo"), show="headings", height=8)
-        self.tree.heading("time", text="Tiempo")
-        self.tree.heading("emo", text="Emoción")
-        self.tree.pack(fill="x", padx=10)
-
-        # ---- PANEL DE ENTRENAMIENTO ----
-        self.train_panel = tk.Frame(self.right_frame, bg="#1e1e1e")
-
-        tk.Label(self.train_panel, text="Entrenamiento", font=("Arial", 16, "bold"),
-                 fg="white", bg="#1e1e1e").pack(pady=5)
-
-        self.combo_emo = ttk.Combobox(self.train_panel,
-                                      values=["alegria", "tristeza", "ansiedad", "neutral"],
-                                      state="readonly")
-        self.combo_emo.pack(pady=5)
-
-        self.bt_record = tk.Button(self.train_panel, text="Grabar", command=self.start_record,
-                                   bg="#555", fg="white")
-        self.bt_record.pack(pady=5)
-
-        self.timer_label = tk.Label(self.train_panel, text="", font=("Arial", 14),
-                                    fg="white", bg="#1e1e1e")
-        self.timer_label.pack()
-
-        # botón modo entrenamiento
-        tk.Button(self.right_frame, text="Modo Entrenamiento", command=lambda: self.switch_mode("train"),
-                  bg="#444", fg="white").pack(pady=5)
+        self.canvas = FigureCanvasTkAgg(fig, master=self.ui_panel)
+        self.canvas.get_tk_widget().pack(pady=20)
 
 
+    # ======================
+    # TRAINING MODE PANEL UI
+    # ======================
 
-    # ===========================
-    #        MODO
-    # ===========================
+    def switch_training(self):
+        self.mode = "training"
+        for w in self.ui_panel.winfo_children():
+            w.destroy()
 
-    def switch_mode(self, mode):
-        self.mode = mode
+        # TITLE
+        tk.Label(
+            self.ui_panel,
+            text="Modo Entrenamiento",
+            font=("SF Pro Display", 22, "bold"),
+            bg=COLORS["panel"], fg="white"
+        ).pack(pady=10)
 
-        if mode == "train":
-            # ocultar inferencia
-            self.label_emoji.pack_forget()
-            self.label_emotion.pack_forget()
-            self.label_suggestion.pack_forget()
-            self.canvas.get_tk_widget().pack_forget()
-            self.tree.pack_forget()
+        # Select emotion
+        self.train_emotion = tk.StringVar(value="alegria")
+        combo = ttk.Combobox(
+            self.ui_panel,
+            values=["alegria", "tristeza", "ansiedad", "neutral"],
+            textvariable=self.train_emotion,
+            width=15
+        )
+        combo.pack(pady=5)
 
-            # mostrar entrenamiento
-            self.train_panel.pack(pady=10)
+        # Timer
+        self.timer_label = tk.Label(
+            self.ui_panel, text="00:00",
+            font=("SF Pro Display", 30),
+            bg=COLORS["panel"], fg="white"
+        )
+        self.timer_label.pack(pady=10)
 
-        else:
-            # mostrar inferencia
-            self.label_emoji.pack()
-            self.label_emotion.pack(pady=5)
-            self.label_suggestion.pack(pady=5)
-            self.canvas.get_tk_widget().pack()
-            self.tree.pack(fill="x", padx=10)
+        # Record button
+        btn = tk.Button(
+            self.ui_panel, text="Grabar muestra",
+            command=self.start_recording,
+            bg="#333333", fg="white",
+            relief="flat", padx=15, pady=10
+        )
+        btn.pack(pady=10)
 
-            # ocultar entrenamiento
-            self.train_panel.pack_forget()
+        # Back button
+        back = tk.Button(
+            self.ui_panel, text="Volver al Dashboard",
+            command=self.back_dashboard,
+            bg="#222222", fg="white",
+            relief="flat"
+        )
+        back.pack(pady=20)
 
-
-    # ===========================
-    #   INICIO DE GRABACIÓN
-    # ===========================
-
-    def start_record(self):
-        if not self.combo_emo.get():
-            self.timer_label.config(text="Selecciona una emoción")
-            return
-
+        self.is_recording = False
+        self.record_start = 0
         self.record_data = []
-        self.is_recording = False
-        self.countdown = 3
-        self.timer_label.config(text=f"Comenzando en {self.countdown}...")
-        self.root.after(1000, self.countdown_record)
 
 
-    def countdown_record(self):
-        self.countdown -= 1
-        if self.countdown > 0:
-            self.timer_label.config(text=f"Comenzando en {self.countdown}...")
-            self.root.after(1000, self.countdown_record)
-        else:
-            self.timer_label.config(text="Grabando...")
-            self.is_recording = True
-            self.record_start_time = time.time()
+    # ======================
+    def back_dashboard(self):
+        self.mode = "dashboard"
+        self.build_layout()
 
 
-    def stop_record(self):
-        self.is_recording = False
+    # ======================
+    # RECORDING LOGIC
+    # ======================
 
-        emotion = self.combo_emo.get()
-        out_path = os.path.join(BASE_DIR, "data/raw_sessions",
-                                f"{emotion}_{int(time.time())}.csv")
-
-        import pandas as pd
-        df = pd.DataFrame(self.record_data)
-        df.to_csv(out_path, index=False)
-
-        self.timer_label.config(text=f"Guardado: {out_path}")
+    def start_recording(self):
+        self.is_recording = True
+        self.record_start = time.time()
+        self.record_data = []
 
 
-    # ===========================
-    #     LOOP VIDEO
-    # ===========================
+    # ======================
+    # FRAME LOOP
+    # ======================
 
     def update_frame(self):
+
         ret, frame = self.cap.read()
         if not ret:
-            self.root.after(10, self.update_frame)
+            self.root.after(20, self.update_frame)
             return
 
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = self.pose.process(frame_rgb)
+        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        results = pose.process(rgb)
 
-        # ------------------- ENTRENAMIENTO -------------------
-        if self.mode == "train":
-            if results.pose_landmarks:
-                drawer.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
+        # ======================
+        # TRAINING MODE
+        # ======================
 
-                if self.is_recording:
-                    row = []
-                    for lm in results.pose_landmarks.landmark:
-                        row += [lm.x, lm.y, lm.z]
-                    self.record_data.append(row)
+        if self.mode == "training" and results.pose_landmarks:
 
-                    elapsed = time.time() - self.record_start_time
-                    self.timer_label.config(text=f"Grabando... {elapsed:.1f}s")
+            drawer.draw_landmarks(frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS)
 
-                    # detener automáticamente después de 6 segundos
-                    if elapsed >= 6:
-                        self.stop_record()
+            pts = []
+            for lm in results.pose_landmarks.landmark:
+                pts.extend([lm.x, lm.y, lm.z])
 
-        # ------------------ INFERENCIA ------------------------
-        elif self.mode == "infer" and results.pose_landmarks:
-            feats = extract_features(results.pose_landmarks.landmark)
-            Xs = scaler.transform([feats])
-            emotion = encoder.inverse_transform(model.predict(Xs))[0]
+            if self.is_recording:
+                self.record_data.append(pts)
+                elapsed = int(time.time() - self.record_start)
+                self.timer_label.config(text=f"{elapsed//60:02d}:{elapsed%60:02d}")
 
-            # UI
-            self.label_emoji.config(text=EMOJI.get(emotion, "😐"))
-            self.label_emotion.config(text=f"Emoción: {emotion}")
+                if elapsed >= 5:
+                    self.is_recording = False
+                    emotion = self.train_emotion.get()
+                    filename = f"data/raw_sessions/{emotion}_{int(time.time())}.csv"
+                    np.savetxt(filename, np.array(self.record_data), delimiter=",")
+                    print("Guardado:", filename)
+
+
+        # ======================
+        # DASHBOARD MODE
+        # ======================
+
+        if self.mode == "dashboard" and results.pose_landmarks:
+
+            pts = []
+            for lm in results.pose_landmarks.landmark:
+                pts.extend([lm.x, lm.y, lm.z])
+
+            X = np.array(pts).reshape(1, -1)
+            emotion = encoder.inverse_transform(model.predict(scaler.transform(X)))[0]
+
+            # UI updates
+            self.emoji_label.config(text=EMOJI.get(emotion, "😐"))
+            self.emotion_label.config(text=f"Emoción: {emotion}")
 
             suggestion = get_suggestion(emotion)
-            self.label_suggestion.config(text=suggestion)
+            self.suggestion_label.config(text=suggestion)
 
-            # historial
-            t = time.strftime("%H:%M:%S")
-            self.tree.insert("", "end", values=(t, emotion))
+            # History graph data (store emotion index)
+            idx = ["alegria", "tristeza", "ansiedad", "neutral"].index(emotion)
+            self.emotion_history.append(idx)
 
-            # gráfica
-            self.history.append(emotion)
-            self.update_plot()
+            self.update_graph()
 
-            # contorno dinámico
-            color = EMO_COLORS.get(emotion, (200, 200, 200))
-            frame = cv2.copyMakeBorder(frame, 8, 8, 8, 8, cv2.BORDER_CONSTANT, value=color)
 
-        # ------------------- RENDER VIDEO -------------------
+        # ======================
+        # Show camera (left pane)
+        # ======================
+
+        frame = cv2.resize(frame, (900, 720))
         img = Image.fromarray(frame)
-        imgtk = ImageTk.PhotoImage(image=img)
-        self.label_video.imgtk = imgtk
-        self.label_video.configure(image=imgtk)
+        imgtk = ImageTk.PhotoImage(img)
+        self.video_label.imgtk = imgtk
+        self.video_label.configure(image=imgtk)
 
-        self.root.after(10, self.update_frame)
+        self.root.after(20, self.update_frame)
 
 
-    # ===========================
-    #    GRÁFICA TIEMPO REAL
-    # ===========================
+    # ======================
+    # GRAPH UPDATE
+    # ======================
 
-    def update_plot(self):
-        emomap = {"alegria": 3, "neutral": 2, "ansiedad": 1, "tristeza": 0}
-        ys = [emomap[e] for e in self.history[-30:]]
-
+    def update_graph(self):
         self.ax.clear()
-        self.ax.plot(ys, color="#00ffff")
-        self.ax.set_ylim(-1, 4)
-        self.ax.set_facecolor("#1e1e1e")
+        self.ax.set_facecolor(COLORS["panel"])
+        self.ax.plot(list(self.emotion_history), color=COLORS["accent"], linewidth=2)
+        self.ax.set_title("Historial de emociones", color="white")
+        self.ax.tick_params(colors="white")
         self.canvas.draw()
 
 
-    # ===========================
-    #   PANTALLA COMPLETA
-    # ===========================
-
-    def toggle_fullscreen(self):
-        self.root.attributes("-fullscreen",
-                             not self.root.attributes("-fullscreen"))
-
-
-    # ===========================
-    #         MAIN LOOP
-    # ===========================
-
+    # ======================
     def run(self):
         self.root.mainloop()
 
-
-# ===========================
-#        EJECUCIÓN
-# ===========================
 
 if __name__ == "__main__":
     EmotionGUI().run()
